@@ -1,0 +1,53 @@
+﻿CREATE TABLE IF NOT EXISTS "__EFMigrationsHistory" (
+    "MigrationId" character varying(150) NOT NULL,
+    "ProductVersion" character varying(32) NOT NULL,
+    CONSTRAINT "PK___EFMigrationsHistory" PRIMARY KEY ("MigrationId")
+);
+
+START TRANSACTION;
+
+
+DO $$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20210406065702_2021040601') THEN
+    CREATE TABLE "RequestLogs" (
+        "RequestLogId" uuid NOT NULL,
+        "IP" varchar(20) NULL,
+        "Path" varchar(4000) NULL,
+        "Method" varchar(10) NULL,
+        "CreatedOn" timestamp without time zone NULL,
+        "ModifiedOn" timestamp without time zone NULL,
+        "CreatedBy" uuid NULL,
+        "ModifiedBy" uuid NULL,
+        "OwnerUserId" uuid NULL,
+        CONSTRAINT "PK_RequestLogs" PRIMARY KEY ("RequestLogId")
+    );
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20210406065702_2021040601') THEN
+    CREATE TABLE "sysUsers" (
+        "SysUserId" uuid NOT NULL,
+        "Name" varchar(20) NULL,
+        "Password" varchar(200) NULL,
+        "CreatedOn" timestamp without time zone NULL,
+        "ModifiedOn" timestamp without time zone NULL,
+        "CreatedBy" uuid NULL,
+        "ModifiedBy" uuid NULL,
+        "OwnerUserId" uuid NULL,
+        CONSTRAINT "PK_sysUsers" PRIMARY KEY ("SysUserId")
+    );
+    END IF;
+END $$;
+
+DO $$
+BEGIN
+    IF NOT EXISTS(SELECT 1 FROM "__EFMigrationsHistory" WHERE "MigrationId" = '20210406065702_2021040601') THEN
+    INSERT INTO "__EFMigrationsHistory" ("MigrationId", "ProductVersion")
+    VALUES ('20210406065702_2021040601', '5.0.4');
+    END IF;
+END $$;
+COMMIT;
+

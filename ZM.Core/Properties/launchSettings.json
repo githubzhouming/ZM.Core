@@ -1,0 +1,11 @@
+{
+  "profiles": {
+    "ZM.Core": {
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development"
+      },
+      "nativeDebugging": true
+    }
+  }
+}
