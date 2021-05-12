@@ -8,16 +8,12 @@ using ZM.Core.DbContexts;
 
 namespace ZM.Core.Entitys
 {
-    /// <summary>
-    /// 角色
-    /// </summary>
-    public partial class SysRole:EntityBase
+    public partial class SysUserRole : EntityBase
     {
-        [Column(name: "SysRoleId")]
+        [Column(name: "SysUserRoleId")]
         public override Guid Id { get; set; }
-        [Column(TypeName = "varchar(50)")]
-        public string Name { get; set; }
-        public int SysState { get; set; }
+        public Guid SysUserId { get; set; }
+        public Guid SysRoleId { get; set; }
         
     }
 }

@@ -74,7 +74,7 @@
                 data: {
                     username: 'u1',
                     password: 'p1',
-
+                    token:'',
                     maxHeightMain: (window.innerHeight - 100) + 'px',
                 },
                 methods: {
@@ -97,6 +97,7 @@
                                 if (jsonData instanceof Object && jsonData.resultCode == 0) {
                                     var result = jsonData.resultBody;
                                     localStorage.setItem("Token", result.tokenkey);
+                                    vueObj.token = result.tokenkey;
                                 }
                             },
                             error: function (jsonData) {
@@ -150,6 +151,9 @@
                         </van-cell-group>
                         <van-cell-group>
                             <van-field v-model="password" label="密码" type="password" placeholder="请输入密码" />
+                        </van-cell-group>
+                        <van-cell-group>
+                            <van-field v-model="token" label="token" readonly />
                         </van-cell-group>
                     </van-col>
 

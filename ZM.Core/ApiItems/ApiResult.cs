@@ -19,6 +19,11 @@ namespace ZM.Core.ApiItems
         InvalidIP = -70,
         InvalidAction = -80,
         InvalidTableRight = -81,
+        InvalidEntityDatapPermission = -100,
+        InvalidEntityDatapPermissionWriteAdd = -101,
+        InvalidEntityDatapPermissionWriteUpdate = -102,
+        InvalidEntityDatapPermissionWrite = -103,
+        InvalidEntityDatapPermissionDelete = -104,
         Exception = -999
     }
 }

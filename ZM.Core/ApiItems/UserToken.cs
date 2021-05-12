@@ -1,12 +1,15 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 
 namespace ZM.Core.ApiItems
 {
     public class UserToken
     {
+        private readonly Guid adminRole = new Guid("00000000-0000-0000-0000-000000000001");
+
         /// <summary>
         /// 用户系统id
         /// </summary>
@@ -32,6 +35,10 @@ namespace ZM.Core.ApiItems
         /// </summary>
         /// <value></value>
         public string sign { get; set; }
+
+        public List<Guid> roles { get; set; }
+
+        public bool IsAdmin ()=> roles.Where(x => x == adminRole).Any();
 
         public override string ToString()
         {

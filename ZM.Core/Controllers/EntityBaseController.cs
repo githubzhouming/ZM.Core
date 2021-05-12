@@ -9,7 +9,9 @@ using System.Reflection;
 using System.Threading.Tasks;
 using ZM.Core.ApiItems;
 using ZM.Core.DbContexts;
+using ZM.Core.Entitys;
 using ZM.Core.Extensions;
+using ZM.Core.Plugins;
 
 namespace ZM.Core.Controllers
 {
@@ -22,12 +24,14 @@ namespace ZM.Core.Controllers
         private readonly ILogger<TController> _logger;
         private readonly DbContextBase _context;
         private readonly IDistributedCache _cache;
+        private readonly IEntityDatapPermission _entityDatapPermission;
 
-        public EntityController(ILogger<TController> logger, DbContextBase context, IDistributedCache cache)
+        public EntityController(ILogger<TController> logger, DbContextBase context, IDistributedCache cache, IEntityDatapPermission entityDatapPermission)
         {
             _logger = logger;
             _context = context;
             _cache = cache;
+            _entityDatapPermission = entityDatapPermission;
         }
 
         [HttpGet("getAll")]
@@ -36,10 +40,12 @@ namespace ZM.Core.Controllers
             ApiResult apiResult = new ApiResult();
             try
             {
+                
                 // _context.Set<TEntity>().FromSqlRaw("");
                 // await _cache.SetStringAsync(typeof(TController).Name + nameof(this.getAllEntity), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.getAllEntity)}");
-                var result = await _context.Set<TEntity>().ToListAsync();
+                var result = await _entityDatapPermission.PermissionWhere(_context.Set<TEntity>()).ToListAsync();
+                //var result = await  _context.Set<TEntity>().ToListAsync();
 
                 apiResult.resultCode = 0;
                 apiResult.resultBody = result;
@@ -61,7 +67,8 @@ namespace ZM.Core.Controllers
             try
             {
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.getTopEntity)}");
-                var result = await _context.Set<TEntity>().Take(top).ToListAsync();
+                var result = await _entityDatapPermission.PermissionWhere(_context.Set<TEntity>()).Take(top).ToListAsync();
+                //var result = await _context.Set<TEntity>().Take(top).ToListAsync();
 
                 apiResult.resultCode = 0;
                 apiResult.resultBody = result;
@@ -83,7 +90,8 @@ namespace ZM.Core.Controllers
             try
             {
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.getEntityById)}");
-                var result = await _context.Set<TEntity>().FindAsync(id);
+                var result = await _entityDatapPermission.PermissionWhere(_context.Set<TEntity>()).Where(x=>x.Id==id).ToListAsync();
+                //var result = await _context.Set<TEntity>().FindAsync(id);
 
                 apiResult.resultCode = 0;
                 apiResult.resultBody = result;
@@ -105,6 +113,15 @@ namespace ZM.Core.Controllers
             try
             {
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.createEntity)}");
+
+                var checkResult= _entityDatapPermission.CheckDataWriteAdd(item);
+                if (!checkResult.isChecked)
+                {
+                    apiResult.resultCode = ResultCodeEnum.InvalidEntityDatapPermissionWriteAdd;
+                    apiResult.resultBody = checkResult.msg;
+                    return BadRequest(apiResult);
+                }
+
                 var entityEntry = _context.Entry(item);
                 entityEntry.State = EntityState.Added;
                 var result = await _context.SaveChangesAsync();
@@ -128,6 +145,17 @@ namespace ZM.Core.Controllers
             try
             {
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.createMultiEntity)}");
+                foreach (var item in items)
+                {
+                    var checkResult = _entityDatapPermission.CheckDataWriteAdd(item);
+                    if (!checkResult.isChecked)
+                    {
+                        apiResult.resultCode = ResultCodeEnum.InvalidEntityDatapPermissionWriteAdd;
+                        apiResult.resultBody = checkResult.msg;
+                        return BadRequest(apiResult);
+                    }
+                }
+
                 foreach (var item in items)
                 {
                     var entityEntry = _context.Entry(item);
@@ -154,6 +182,14 @@ namespace ZM.Core.Controllers
             try
             {
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.updateEntity)}");
+                var checkResult = _entityDatapPermission.CheckDataWriteUpdate(updateEntity.entity);
+                if (!checkResult.isChecked)
+                {
+                    apiResult.resultCode = ResultCodeEnum.InvalidEntityDatapPermissionWriteUpdate;
+                    apiResult.resultBody = checkResult.msg;
+                    return BadRequest(apiResult);
+                }
+
                 var entry = _context.Entry(updateEntity.entity);
                 var properties = updateEntity.properties;
                 if (properties != null && properties.Length > 0)
@@ -199,6 +235,18 @@ namespace ZM.Core.Controllers
                 {
                     foreach (var updateEntity in updateEntitys)
                     {
+                        var checkResult = _entityDatapPermission.CheckDataWriteUpdate(updateEntity.entity);
+                        if (!checkResult.isChecked)
+                        {
+                            apiResult.resultCode = ResultCodeEnum.InvalidEntityDatapPermissionWriteUpdate;
+                            apiResult.resultBody = checkResult.msg;
+                            return BadRequest(apiResult);
+                        }
+                    }
+
+                    foreach (var updateEntity in updateEntitys)
+                    {
+                        
                         var entry = _context.Entry(updateEntity.entity);
                         var properties = updateEntity.properties;
                         if (properties != null && properties.Length > 0)
@@ -244,6 +292,14 @@ namespace ZM.Core.Controllers
             try
             {
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.deleteEntity)}");
+                var checkResult = _entityDatapPermission.CheckDataDelete(item);
+                if (!checkResult.isChecked)
+                {
+                    apiResult.resultCode = ResultCodeEnum.InvalidEntityDatapPermissionDelete;
+                    apiResult.resultBody = checkResult.msg;
+                    return BadRequest(apiResult);
+                }
+
                 var entry = _context.Entry(item);
                 entry.State = EntityState.Deleted;
                 var result = await _context.SaveChangesAsync();
@@ -271,6 +327,17 @@ namespace ZM.Core.Controllers
                 {
                     foreach (var item in items)
                     {
+                        var checkResult = _entityDatapPermission.CheckDataDelete(item);
+                        if (!checkResult.isChecked)
+                        {
+                            apiResult.resultCode = ResultCodeEnum.InvalidEntityDatapPermissionDelete;
+                            apiResult.resultBody = checkResult.msg;
+                            return BadRequest(apiResult);
+                        }
+                    }
+
+                    foreach (var item in items)
+                    {
                         var entry = _context.Entry(item);
                         entry.State = EntityState.Deleted;
                         entityLsit.Add(entry.Entity);
@@ -296,7 +363,8 @@ namespace ZM.Core.Controllers
             ApiResult apiResult = new ApiResult();
             try
             {
-                IQueryable<dynamic> querySelect = _context.AdSearchEntity<TEntity>(advancedSearch);
+                var querySelect = _entityDatapPermission.PermissionWhere(_context.Set<TEntity>()).AdSearchEntity(advancedSearch);
+                //var querySelect = _context.AdSearchEntity<TEntity>(advancedSearch);
 
                 await _cache.SetStringAsync(typeof(TController).Name + nameof(this.AdSearchEntity), DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"));
                 _logger.LogInformation($"{typeof(TController).Name}/{nameof(this.AdSearchEntity)}");

@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Text;
 
-namespace ZM.Core.DbContexts
+namespace ZM.Core.Entitys
 {
     public abstract class EntityBase
     {
@@ -17,5 +17,7 @@ namespace ZM.Core.DbContexts
         public Guid? CreatedBy { get; set; }
         public Guid? ModifiedBy { get; set; }
         public Guid? OwnerUserId { get; set; }
+
+        public bool IsDeleted { get; set; } = false;
     }
 }

@@ -8,17 +8,15 @@ using ZM.Core.DbContexts;
 
 namespace ZM.Core.Entitys
 {
-    /// <summary>
-    /// 请求操作
-    /// </summary>
-    public partial class SysAction:EntityBase
+    
+    public partial class SysRoleActionView : EntityViewBase
     {
-        [Column(name: "SysActionId")]
+        [Column(name: "SysRoleActionViewId")]
         public override Guid Id { get; set; }
-        [Column(TypeName = "varchar(200)")]
-        public string Name { get; set; }
-        [Column(TypeName = "varchar(200)")]
+        public Guid SysRoleId { get; set; }
+        public Guid SysActionId { get; set; }
         public string ActionPath { get; set; }
-        
+        public string ActionName { get; set; }
+        public string RoleName { get; set; }
     }
 }

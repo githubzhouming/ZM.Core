@@ -8,13 +8,14 @@ using ZM.Core.DbContexts;
 
 namespace ZM.Core.Entitys
 {
-    public partial class SysUserRoleRef : EntityBase
+    /// <summary>
+    /// 请求操作
+    /// </summary>
+    public partial class SysRoleAction:EntityBase
     {
-        [Column(name: "SysUserRoleRefId")]
+        [Column(name: "SysRoleActionId")]
         public override Guid Id { get; set; }
-        
-        public Guid SysUserId { get; set; }
-        
+        public Guid SysActionId { get; set; }
         public Guid SysRoleId { get; set; }
         
     }

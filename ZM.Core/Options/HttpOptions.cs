@@ -3,6 +3,8 @@ using Microsoft.Extensions.Caching.Distributed;
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ZM.Core.ApiItems;
+using ZM.Core.Extensions;
 
 namespace ZM.Core.Options
 {
@@ -48,6 +50,11 @@ namespace ZM.Core.Options
         public static HttpContext GetContext()
         {
             return Accessor.HttpContext;
+        }
+
+        public static UserToken getUserToken()
+        {
+           return GetContext().getUserToken();
         }
     }
 }

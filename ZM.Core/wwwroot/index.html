@@ -76,7 +76,9 @@
                     maxHeightMain: (window.innerHeight - 100) + 'px',
                 },
                 methods: {
-
+                    onOpen: function (url) {
+                        window.open(url);
+                    }
                 },
                 computed: {
                     disabled() {
@@ -111,13 +113,23 @@
 
                 </van-row>
                 <van-row class="main-container">
-                    <van-col span="24" style="text-align: center;">
-                        <template>
-                            <van-tag type="warning">样例</van-tag>
-                        </template>
-                    </van-col>
-
-
+                    <template>
+                        <van-col span="24" style="text-align: center;">
+                            <van-tag type="warning">webapi demo</van-tag>
+                        </van-col>
+                        <van-col span="24" style="text-align: center;">
+                            <van-tag type="success" @click="onOpen('/swagger')">swagger UI</van-tag>
+                        </van-col>
+                        <van-col span="24" style="text-align: center;">
+                            <van-tag type="success" @click="onOpen('http://phpredisadmin.zmserver.cn')">phpRedisAdmin</van-tag>
+                        </van-col>
+                        <van-col span="24" style="text-align: center;">
+                            <van-tag type="success" @click="onOpen('http://pgadmin4.zmserver.cn')">pgAdmin</van-tag>
+                        </van-col>
+                        <van-col span="24" style="text-align: center;">
+                            <van-tag type="success" @click="onOpen('https://github.com/githubzhouming/ZM.Core')">github</van-tag>
+                        </van-col>
+                    </template>
                 </van-row>
             </van-col>
 

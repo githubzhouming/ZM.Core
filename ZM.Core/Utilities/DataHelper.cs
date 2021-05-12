@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
 namespace ZM.Core.Utilities
 {
-    public class DataHelper
+    public static class DataHelper
     {
         /// <summary>
         /// 生成单个随机数字
@@ -73,6 +76,74 @@ namespace ZM.Core.Utilities
                 }
             }
             return sb.ToString();
+        }
+
+
+        /// <summary>
+        /// byte[] 转字符串
+        /// </summary>
+        /// <param name="bytes"></param>
+        /// <param name="strFormat"></param>
+        /// <returns></returns>
+        public static string BytesToString(byte[] bytes, string strFormat = "X2")
+        {
+            StringBuilder sb = new StringBuilder(40);
+            for (int i = 0; i < bytes.Length; i++)
+            {
+                sb.Append(bytes[i].ToString(strFormat));
+            }
+            return sb.ToString();
+        }
+
+        public static byte[] StringToBytes(string str, Encoding encoding)
+        {
+            if (encoding == null) { encoding = Encoding.UTF8; }
+            return encoding.GetBytes(str);
+        }
+        public static byte[] StringToBytes(string str)
+        {
+            return StringToBytes(str,null);
+        }
+
+        /// <summary>
+        /// 字符串转成数据流
+        /// </summary>
+        /// <param name="str"></param>
+        /// <param name="length"></param>
+        /// <returns></returns>
+        public static Stream ToStream(string str)
+        {
+            using (MemoryStream stream = new MemoryStream())
+            {
+                using (StreamWriter writer = new StreamWriter(stream))
+                {
+                    writer.Write(str);
+                    writer.Flush();
+                    return stream;
+                }
+            }
+        }
+        /// <summary>
+        /// DataTable 转集合对象
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        public static IEnumerable<T> ToEnumerable<T>(DataTable dt) where T : class, new()
+        {
+            PropertyInfo[] propertyInfos = typeof(T).GetProperties();
+            T[] ts = new T[dt.Rows.Count];
+            int i = 0;
+            foreach (DataRow row in dt.Rows)
+            {
+                T t = new T();
+                foreach (PropertyInfo p in propertyInfos)
+                {
+                    if (dt.Columns.IndexOf(p.Name) != -1 && row[p.Name] != DBNull.Value)
+                        p.SetValue(t, row[p.Name], null);
+                }
+                ts[i] = t;
+                i++;
+            }
+            return ts;
         }
     }
 }

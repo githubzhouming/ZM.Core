@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using ZM.Core.Entitys;
 using ZM.Core.Extensions;
 using ZM.Core.Options;
 
@@ -14,16 +15,16 @@ namespace ZM.Core.DbContexts
         //    SavingChanges += PreSave;
         //}
 
-        //public DbContextBase(DbContextOptions<DbContext> options)
-        //    : base(options)
-        //{
-        //    SavingChanges += PreSave;
-        //}
         public DbContextBase(DbContextOptions options)
             : base(options)
         {
             SavingChanges += PreSave;
         }
+        //public DbContextBase(DbContextOptions options)
+        //    : base(options)
+        //{
+        //    SavingChanges += PreSave;
+        //}
         //protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         //{
         //    if (!optionsBuilder.IsConfigured)
@@ -39,7 +40,7 @@ namespace ZM.Core.DbContexts
             var httpContext = HttpOptions.GetContext();
             var userToken= httpContext.getUserToken();
             var userId = userToken?.userid;
-            var context = (sender as DbContextBase);
+            var context = (sender as DbContext);
             if (context != null)
             {
                 var entitys = context.ChangeTracker.Entries();
@@ -47,17 +48,31 @@ namespace ZM.Core.DbContexts
                 {
                     var thisEntity = (entry.Entity as EntityBase);
                     if (thisEntity == null) { continue; }
-                    if (entry.State == EntityState.Added)
+                    switch (entry.State)
                     {
-                        thisEntity.Id = Guid.NewGuid();
-                        thisEntity.CreatedOn =thisEntity.ModifiedOn= DateTime.Now;
-                        thisEntity.CreatedBy = thisEntity.ModifiedBy = thisEntity.OwnerUserId = userId;
+                        case EntityState.Detached:
+                            break;
+                        case EntityState.Unchanged:
+                            break;
+                        case EntityState.Deleted:
+                            entry.State = EntityState.Modified;
+                            thisEntity.IsDeleted = true;
+                            thisEntity.ModifiedOn = DateTime.Now;
+                            thisEntity.ModifiedBy = userId;
+                            break;
+                        case EntityState.Modified:
+                            thisEntity.ModifiedOn = DateTime.Now;
+                            thisEntity.ModifiedBy = userId;
+                            break;
+                        case EntityState.Added:
+                            thisEntity.Id = Guid.NewGuid();
+                            thisEntity.CreatedOn = thisEntity.ModifiedOn = DateTime.Now;
+                            thisEntity.CreatedBy = thisEntity.ModifiedBy = thisEntity.OwnerUserId = userId;
+                            break;
+                        default:
+                            break;
                     }
-                    else if (entry.State == EntityState.Modified)
-                    {
-                        thisEntity.ModifiedOn = DateTime.Now;
-                        thisEntity.ModifiedBy =  userId;
-                    }
+                    
                 }
             }
             

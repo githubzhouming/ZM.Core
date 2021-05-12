@@ -20,6 +20,7 @@ using ZM.Core.DBContexts;
 using ZM.Core.Middleware;
 using Microsoft.AspNetCore.Http;
 using ZM.Core.Options;
+using ZM.Core.Plugins;
 
 namespace ZM.Test
 {
@@ -39,12 +40,13 @@ namespace ZM.Test
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            var t = Core.Utilities.ClassHelper.GetChildTypes(typeof(Core.Entitys.EntityBase));
             services.Configure<FormOptions>(options =>
             {
                 options.MultipartBodyLengthLimit = long.MaxValue;
             });
 
-            services.AddControllers();
+            services.AddControllers().AddNewtonsoftJson();
             services.AddSwaggerGen(c =>
             {
                 c.SwaggerDoc("v1", new OpenApiInfo { Title = _env.ApplicationName, Version = "v1" });
@@ -80,13 +82,23 @@ namespace ZM.Test
                 ;
             });
 
-            services.AddEntityFrameworkNpgsql();
-            services.AddDbContextPool<EntityContext>((serviceProvider, optionsBuilder) => {
+            //services.AddEntityFrameworkNpgsql();
+            //services.AddDbContextPool<EntityContext>((optionsBuilder) =>
+            //{
+            //    optionsBuilder.UseNpgsql(pgSqlString)
+            //    //.UseInternalServiceProvider(serviceProvider)
+            //    .UseLoggerFactory(loggerFactory)
+            //    ;
+            //}, 1024);
+
+            services.AddDbContext<EntityContext>((optionsBuilder) =>
+            {
                 optionsBuilder.UseNpgsql(pgSqlString)
-                .UseLoggerFactory(loggerFactory)
                 //.UseInternalServiceProvider(serviceProvider)
+                .UseLoggerFactory(loggerFactory)
                 ;
-            }, 1024);
+            });
+
             //services.AddTransient<EntityContext>((iServiceProvider) =>
             //{
 
@@ -137,6 +149,8 @@ namespace ZM.Test
             #endregion
 
             services.AddSingleton<IHttpContextAccessor, HttpContextAccessor>();
+
+            services.AddEntityDatapPermissionDefault();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -148,11 +162,11 @@ namespace ZM.Test
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
                 app.UseSwaggerUI(
-                    c => 
+                    c =>
                     c.SwaggerEndpoint("/swagger/v1/swagger.json", $"{env.ApplicationName} v1")
-                    
+
                     );
-                
+
             }
             #region 自定义中间件
             app.UseHttpContextAnalysisMiddleware();

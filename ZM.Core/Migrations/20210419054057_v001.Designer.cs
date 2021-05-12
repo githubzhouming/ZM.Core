@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ZM.Core.DBContexts;
@@ -9,9 +10,10 @@ using ZM.Core.DBContexts;
 namespace ZM.Core.Migrations
 {
     [DbContext(typeof(EntityContext))]
-    partial class EntityContextModelSnapshot : ModelSnapshot
+    [Migration("20210419054057_v001")]
+    partial class v001
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -52,9 +54,6 @@ namespace ZM.Core.Migrations
 
                     b.Property<string>("Path")
                         .HasColumnType("varchar(4000)");
-
-                    b.Property<string>("RequestKey")
-                        .HasColumnType("varchar(50)");
 
                     b.HasKey("Id");
 

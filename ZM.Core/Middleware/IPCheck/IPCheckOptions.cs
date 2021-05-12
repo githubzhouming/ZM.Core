@@ -16,6 +16,7 @@ using Microsoft.Extensions.Options;
 using ZM.Core.Options;
 using ZM.Core.DBContexts;
 using ZM.Core.Entitys;
+using ZM.Core.ApiItems;
 
 namespace ZM.Core.Middleware
 {
@@ -48,26 +49,35 @@ namespace ZM.Core.Middleware
             string method = context.Request.Method.ToLower();
             string ip = GetClientIp(context);
 
-            {//
-                //静态文件类型
+            var userToken= context.getUserToken();
+            var requestKey = context.getRequestKey();
+            {//记录日志
+                var item = new RequestLog()
+                {
+                    IP = ip,
+                    Method = method,
+                    Path = url,
+                    RequestKey= requestKey,
+                };
+                var entityEntry = _dbContext.Entry(item);
+                entityEntry.State = EntityState.Added;
+                var result = await _dbContext.SaveChangesAsync();
+            }
+           
+
+            if (userToken.IsAdmin())
+            {
+                return (true, ip);
+            }
+            {//静态文件类型
                 string pattern = _httpOptions.IgnoreExpressionPattern;
                 if (Regex.IsMatch(path, pattern, RegexOptions.IgnoreCase))
                 {
                     return (true, ip);
                 }
             }
-
-            var userToken = context.getUserToken();
-            var requestKey = context.getRequestKey();
-            var item = new RequestLog()
-            {
-                IP = ip,
-                Method = method,
-                Path = url,
-            };
-            var entityEntry = _dbContext.Entry(item);
-            entityEntry.State = EntityState.Added;
-            var result = await _dbContext.SaveChangesAsync();
+            
+            
 
             //ip不存在直接返回false
             if (string.IsNullOrEmpty(ip))

@@ -10,13 +10,13 @@ namespace ZM.Core.Controllers
 {
     [Route("[controller]")]
     [ApiController]
-    public class SysUserController : EntityController<SysUser, SysUserController>
+    public class RequestLogController : EntityController<RequestLog, RequestLogController>
     {
-        private readonly ILogger<SysUserController> _logger;
+        private readonly ILogger<RequestLogController> _logger;
         private readonly EntityContext _context;
         private readonly IDistributedCache _cache;
 
-        public SysUserController(EntityContext context, ILogger<SysUserController> logger, IDistributedCache cache, IConfiguration config, IEntityDatapPermission entityDatapPermission)
+        public RequestLogController(EntityContext context, ILogger<RequestLogController> logger, IDistributedCache cache, IConfiguration config, IEntityDatapPermission entityDatapPermission)
             : base(logger, context, cache, entityDatapPermission)
         {
             _logger = logger;

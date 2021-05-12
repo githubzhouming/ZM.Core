@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 using ZM.Core.DbContexts;
+using ZM.Core.Entitys;
 
 namespace ZM.Core.ApiItems
 {

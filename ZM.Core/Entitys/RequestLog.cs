@@ -10,7 +10,7 @@ namespace ZM.Core.Entitys
     /// <summary>
     /// 请求日志
     /// </summary>
-    public class RequestLog:EntityBase
+    public partial class RequestLog:EntityBase
     {
         [Column("RequestLogId")]
         public override Guid Id { get; set; }
@@ -20,5 +20,7 @@ namespace ZM.Core.Entitys
         public string Path { get; set; }
         [Column(TypeName = "varchar(10)")]
         public string Method { get; set; }
+        [Column(TypeName = "varchar(50)")]
+        public string RequestKey { get; set; }
     }
 }

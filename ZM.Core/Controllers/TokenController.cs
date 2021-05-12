@@ -90,8 +90,8 @@ namespace ZM.Core.Controllers
                     customResult.resultBody = "sign verification failed";
                     return BadRequest(customResult);
                 }
-                var tokenkey =await _cache.GetStringAsync("tokenkey" + authInfo.Id);
-                var token =await _cache.GetStringAsync("token" + tokenkey);
+                var tokenkey =await CacheHelper.GetUserTokenkeyAsync(_cache,authInfo.Id.ToString());
+                var token =await CacheHelper.GetTokenAsync(_cache,tokenkey);
                 UserToken userToken = null;
                 var AESKey = _httpOptions.TokenKey;
                 if (string.IsNullOrEmpty(token))
@@ -113,8 +113,8 @@ namespace ZM.Core.Controllers
 
                 //缓存信息
 
-                await _cache.SetStringAsync("token" + tokenkey, token,_httpOptions.GetDistributedCacheEntryOptions());
-                await _cache.SetStringAsync("tokenkey" + userToken.userid, tokenkey, _httpOptions.GetDistributedCacheEntryOptions());
+                await CacheHelper.SetTokenAsync(_cache,tokenkey,token,_httpOptions.GetDistributedCacheEntryOptions());
+                await CacheHelper.SetUserTokenkeyAsync(_cache, userToken.userid.ToString(), tokenkey, _httpOptions.GetDistributedCacheEntryOptions());
                 customResult.resultCode = 0;
                 customResult.resultBody = new { tokenkey = tokenkey, userid = userToken.userid, username = item.username };
 
